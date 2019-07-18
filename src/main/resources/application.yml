@@ -1,0 +1,48 @@
+spring:
+  application:
+    name: service-java-util
+  jackson:
+#设置时间格式，时差
+    date-format: yyyy-MM-dd HH:mm:ss
+    time-zone: GMT+8
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    tomcat:
+      max-idle: 10
+      max-wait: 50000
+      min-idle: 50
+      initial-size: 5
+    url: jdbc:mysql://182.92.132.150:3306/qsjds?useUnicode=true&characterEncoding=UTF-8&allowMultiQueries=true
+    username: ceshi
+    password: gaodeyang
+#mybatis配置
+mybatis:
+  mapper-locations: classpath:/mapper/*.xml
+  configuration:
+    map-underscore-to-camel-case: true
+#日志输出配置
+logging:
+  file: logs/spring-boot-logging.log
+  level:
+    org:
+      springframework: WARN
+    spring:
+      springboot:
+        dao: debug
+    com:
+      polycis:
+        qsjd:
+          dao: debug
+
+eureka:
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+    serviceUrl:
+      defaultZone: http://192.168.10.148:10035/eureka/
+  instance:
+      #告诉服务端，如果我20s之内没有给你发心跳，就代表我“死”了，将我踢出掉。
+      lease-expiration-duration-in-seconds: 20
+      #每间隔10s，向服务端发送一次心跳，证明自己依然”存活“
+      leaseRenewalIntervalInSeconds: 10
+      prefer-ip-address: true
