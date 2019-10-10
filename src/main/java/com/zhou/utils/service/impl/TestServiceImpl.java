@@ -1,11 +1,16 @@
 package com.zhou.utils.service.impl;
 
+import com.github.pagehelper.Page;
+import com.github.pagehelper.PageHelper;
+import com.github.pagehelper.PageInfo;
 import com.zhou.utils.dao.TestDao;
 import com.zhou.utils.service.TestService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -31,5 +36,10 @@ public class TestServiceImpl implements TestService {
             }
         }
         return testMap;
+    }
+
+    @Override
+    public PageInfo<HashMap<String,Object>> selectUser(int pageNum, int pageSize) {
+        return PageHelper.startPage(pageNum,pageSize).doSelectPageInfo(()->dao.selectUser());
     }
 }

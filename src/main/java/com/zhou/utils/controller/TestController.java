@@ -1,9 +1,18 @@
 package com.zhou.utils.controller;
 
+import com.github.pagehelper.PageInfo;
+import com.zhou.utils.repository.database.User;
+import com.zhou.utils.repository.UserRepository;
 import com.zhou.utils.service.TestService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 
 import javax.annotation.Resource;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -19,6 +28,8 @@ public class TestController {
     @Resource
     private TestService service;
 
+    @Autowired
+    private UserRepository repository;
     /**
      * 悲观锁实现🔒
      *
@@ -29,5 +40,22 @@ public class TestController {
     @GetMapping("/lock")
     public Map<String, Object> lock(Integer id, Integer lock) {
         return service.lockTest(id, lock);
+    }
+
+    @GetMapping("/getjpa")
+    public Page<User> getJpa(int page){
+        return repository.findAll(PageRequest.of(page,5,Sort.by(Sort.Order.asc("id"))));
+    }
+    @GetMapping("/savejpa")
+    public void saveJpa(){
+        User user = new User();
+        user.setName("测试");
+        user.setEmail("邮箱");
+        user.setCreateTime(new Date());
+        repository.save(user);
+    }
+    @GetMapping("/pagehelper")
+    public PageInfo<HashMap<String,Object>> pagehelper(int pageNum, int pageSize){
+        return service.selectUser(pageNum, pageSize);
     }
 }

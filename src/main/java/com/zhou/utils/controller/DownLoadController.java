@@ -24,6 +24,10 @@ public class DownLoadController {
     @Value("${server.port}")
     private String port;
 
+    /**
+     * 测试feign负载均衡
+     * @return 当前项目端口号
+     */
     @PostMapping(value = "/test")
     public String test(){
         System.out.println("来调用了");
@@ -31,9 +35,10 @@ public class DownLoadController {
         js.put("msg","来自" + port + "端口的hello");
         return js.toJSONString();
     }
+
     /**
      * 下载文件工具
-     * http://192.168.10.148:9998/download/file/qsjd.jar
+     * http://192.168.10.88:9998/download/file/websocket.rar
      * */
     @GetMapping(value = "/file/{filename}")
     public void doDownLoadFile(HttpServletResponse response,

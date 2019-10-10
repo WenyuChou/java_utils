@@ -1,5 +1,8 @@
 package com.zhou.utils.service;
 
+import com.github.pagehelper.PageInfo;
+
+import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -11,4 +14,6 @@ import java.util.Map;
 public interface TestService {
 
     Map<String,Object> lockTest(Integer id, Integer lock);
+
+    PageInfo<HashMap<String,Object>> selectUser(int pageNum, int pageSize);
 }

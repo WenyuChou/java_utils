@@ -21,7 +21,7 @@ public class Scheduler {
     }
 
     /*//每天3：05执行
-    @Scheduled(cron = "0 05 03 ? * *")
+    @Scheduled(cron = "0 05 03 * * ?")
     public void testTasks() {
         System.out.println("定时任务执行时间：" + dateFormat.format(new Date()));
     }*/
