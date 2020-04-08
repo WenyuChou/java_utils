@@ -61,7 +61,7 @@ public class DownLoadController {
         // 从服务器上 读取文件
         String path = "C://"+filename;
         File file = new File(path);
-        response.setContentLength(Integer.valueOf(((Long) file.length())
+        response.setContentLength(Integer.parseInt(((Long) file.length())
                 .toString()));
         // 输入流 读取目标文件
         FileInputStream fis = new FileInputStream(file);
