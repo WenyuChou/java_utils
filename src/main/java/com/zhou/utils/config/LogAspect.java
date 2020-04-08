@@ -1,11 +1,10 @@
 package com.zhou.utils.config;
 
 import com.alibaba.fastjson.JSON;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
@@ -19,10 +18,10 @@ import java.util.TreeMap;
  * @author wenyu zhou
  * @date 2020-04-08 17：03
  */
+@Slf4j
 @Aspect
 @Component
 public class LogAspect {
-    private static final Logger logger = LoggerFactory.getLogger(LogAspect.class);
 
     @Around("execution(* com.zhou.utils.controller..*.*(..)))")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
@@ -43,9 +42,9 @@ public class LogAspect {
             if(authorization != null){
                 logMap.put("authorization",authorization);
             }
-            logger.info(" <== response:" + JSON.toJSONString(logMap));
+            log.info(" <== response:" + JSON.toJSONString(logMap));
         } catch (Exception ex) {
-            logger.error(ex.toString(), ex);
+            log.error(ex.toString(), ex);
         }
     }
 
@@ -58,9 +57,9 @@ public class LogAspect {
             logMap.put("q_req_url", url);
             logMap.put("q_req_args", Arrays.toString(args));
             String requestInfo = JSON.toJSONString(logMap);
-            logger.info("==> request:" + requestInfo);
+            log.info("==> request:" + requestInfo);
         } catch (Exception e) {
-            logger.error(e.toString(), e);
+            log.error(e.toString(), e);
         }
         return logMap;
     }
