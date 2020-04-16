@@ -65,7 +65,7 @@
 
 
     <root level="INFO">
-        <appender-ref ref="CONSOLE"></appender-ref>
+        <appender-ref ref="CONSOLE"/>
         <appender-ref ref="all"/>
         <appender-ref ref="error"/>
         <appender-ref ref="info"/>
