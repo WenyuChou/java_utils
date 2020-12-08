@@ -1,13 +1,14 @@
 package com.zhou.utils.utils;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.script.DefaultRedisScript;
+import org.springframework.data.redis.core.script.RedisScript;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -16,6 +17,7 @@ import java.util.concurrent.TimeUnit;
  * @description : redis操作工具类
  * @date :2019/3/28
  */
+@Slf4j
 @Component
 public class RedisUtils {
 
@@ -169,42 +171,95 @@ public class RedisUtils {
 
     //================================LOCK=================================
 
+    private RedisTemplate<String, String> redisTemplateLua;
+    @Autowired
+    public void setRedisTemplateLua(RedisTemplate<String, String> redisTemplateLua) {
+        this.redisTemplateLua = redisTemplateLua;
+    }
+    /**加锁脚本*/
+    private static final String LOCK_SCRIPT =
+            "if redis.call('setNx',KEYS[1],ARGV[1]) then if redis.call('get',KEYS[1])==ARGV[1] then return redis.call('expire',KEYS[1],ARGV[2]) else return 0 end end";
+    /**解锁脚本*/
+    private static final String UNLOCK_SCRIPT = "if redis.call('get', KEYS[1]) == ARGV[1] then return redis.call('del', KEYS[1]) else return 0 end";
+    private static final Long SUCCESS = 1L;
+
     /**
-     * 加锁
-     *
-     * @param key  加锁key
-     * @param time 过期时间(秒)
+     * 获取锁
+     * @param key redis的key
+     * @param expireTime redis的key 的过期时间 防止死锁，导致其他请求无法正常执行业务
      * @return boolean
      */
-    public boolean lock(String key, long time) {
-        if (lock(key, System.currentTimeMillis() + (time * 1000), time)) {
-            return true;
+    public boolean lock(String key, long expireTime) {
+        try {
+            String value = UUID.randomUUID().toString();
+            RedisScript<Long> redisScript = new DefaultRedisScript<>(LOCK_SCRIPT, Long.class);
+            // 对非string类型的序列化
+            Object result = redisTemplateLua.execute(redisScript, Collections.singletonList(key), value, String.valueOf(expireTime));
+            return SUCCESS.equals(result);
+        } catch (Exception e) {
+            // 任何异常都是加锁失败
+            log.error("获取锁异常-----------------> e={}", e.getMessage(),e);
+            return false;
         }
-        long expireTime = (long) get(key);
-        if (System.currentTimeMillis() > expireTime) {
-            del(key);
-            return lock(key, time);
-        }
-        return false;
+
     }
 
     /**
-     * 加锁
-     *
-     * @param key   加锁的Key
-     * @param value 时间戳：当前时间+超时时间
-     * @param time  超时时间，秒。
+     * 传入版本的加锁操作
+     * @param key key
+     * @param value value
+     * @param expireTime 过期时间（秒）
      * @return boolean
      */
-    public boolean lock(String key, Object value, long time) {
-        // 对应setNx命令，可以成功设置,也就是key不存在，获得锁成功
-        Boolean ifAbsent = redisTemplate.opsForValue().setIfAbsent(key, value);
-        if (ifAbsent != null && ifAbsent) {
-            //若设置延迟时间时出错，会造成该key永久存在。解决此方法可用另一个lock(key,time)方法
-            return expire(key, time);
+    public boolean lock(String key,String value,long expireTime){
+        try {
+            RedisScript<Long> redisScript = new DefaultRedisScript<>(LOCK_SCRIPT, Long.class);
+            // 对非string类型的序列化
+            Object result = redisTemplateLua.execute(redisScript, Collections.singletonList(key), value, String.valueOf(expireTime));
+            return SUCCESS.equals(result);
+        } catch (Exception e) {
+            // 任何异常都是加锁失败
+            log.error("获取锁异常-----------------> e={}", e.getMessage(),e);
+            return false;
         }
-        return false;
     }
+    /**
+     * 多次获取锁
+     * @param key key
+     * @param expireTime 过期时间(秒)
+     * @param retryTimes 重试次数
+     * @param sleepMillis 每次重试间隔时间(毫秒)
+     * @return boolean
+     */
+    public boolean tryLock(String key, long expireTime, int retryTimes, Long sleepMillis) {
+        boolean result = lock(key, expireTime);
+        while ((!result) && retryTimes-- > 0) {
+            try {
+                log.info("每次重试时间间隔-----> retryTimes={} ", retryTimes);
+                Thread.sleep(sleepMillis);
+            } catch (InterruptedException e) {
+                return false;
+            }
+            result = lock(key, expireTime);
+        }
+        return result;
+    }
+
+    /**
+     * 释放锁
+     * @param lockKey redis的key
+     * @return boolean
+     */
+    public boolean unlock(String lockKey,String value) {
+        try {
+            RedisScript<Long> redisScript = new DefaultRedisScript<>(UNLOCK_SCRIPT, Long.class);
+            Object result = redisTemplateLua.execute(redisScript, Collections.singletonList(lockKey), value);
+            return SUCCESS.equals(result);
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     //================================Hash=================================
 
     /**
