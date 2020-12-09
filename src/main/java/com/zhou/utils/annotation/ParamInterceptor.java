@@ -26,7 +26,6 @@ public class ParamInterceptor {
         }
     }
 
-    @SneakyThrows
     public void checkParam(Object object) {
         Class tClass = object.getClass();
         Field[] fields = tClass.getDeclaredFields();
