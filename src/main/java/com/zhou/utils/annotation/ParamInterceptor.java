@@ -20,28 +20,34 @@ public class ParamInterceptor {
     public void before(JoinPoint joinPoint) {
         for (Object arg : joinPoint.getArgs()) {
             Class cls = arg.getClass();
-            if(cls.isAnnotationPresent(CheckParam.class)){
-                checkBlank(arg);
+            if (cls.isAnnotationPresent(CheckParam.class)) {
+                checkParam(arg);
             }
         }
     }
+
     @SneakyThrows
-    public void checkBlank(Object object) {
+    public void checkParam(Object object) {
         Class tClass = object.getClass();
         Field[] fields = tClass.getDeclaredFields();
         for (Field item : fields) {
             if (item.isAnnotationPresent(CheckBlank.class)) {
-                //得到私有
-                item.setAccessible(true);
-                //获取属性
-                String name = item.getName();
-                //获取属性值
-                Object value = item.get(object);
-                if (value == null || StringUtils.isBlank(String.valueOf(value))) {
-                    String desc = item.getAnnotation(CheckBlank.class).desc();
-                    throw new RuntimeException("参数:" + desc + "(" + name + ")不可为空");
-                }
+                checkBlank(item, object);
             }
+        }
+    }
+
+    @SneakyThrows
+    private void checkBlank(Field item, Object object) {
+        //得到私有
+        item.setAccessible(true);
+        //获取属性
+        String name = item.getName();
+        //获取属性值
+        Object value = item.get(object);
+        if (value == null || StringUtils.isBlank(String.valueOf(value))) {
+            String desc = item.getAnnotation(CheckBlank.class).desc();
+            throw new RuntimeException("参数:" + desc + "(" + name + ")不可为空");
         }
     }
 }
