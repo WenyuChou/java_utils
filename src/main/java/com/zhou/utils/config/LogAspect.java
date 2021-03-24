@@ -26,13 +26,13 @@ public class LogAspect {
     @Around("execution(* com.zhou.utils.controller..*.*(..)))")
     public Object around(ProceedingJoinPoint joinPoint) throws Throwable {
         Long startTime = System.currentTimeMillis();
-        TreeMap logMap = printRequestLog(joinPoint);
+        TreeMap<String,Object> logMap = printRequestLog(joinPoint);
         Object restObj = joinPoint.proceed();
         printResponseLog(logMap,startTime,restObj);
         return restObj;
     }
 
-    private void printResponseLog(TreeMap logMap, Long startTime, Object restObj) {
+    private void printResponseLog(TreeMap<String,Object> logMap, Long startTime, Object restObj) {
         try {
             Long endTime = System.currentTimeMillis();
             logMap.put("q_opt_duration", (endTime - startTime));
@@ -48,8 +48,8 @@ public class LogAspect {
         }
     }
 
-    private TreeMap printRequestLog(ProceedingJoinPoint joinPoint) {
-        TreeMap logMap = new TreeMap();
+    private TreeMap<String,Object> printRequestLog(ProceedingJoinPoint joinPoint) {
+        TreeMap<String,Object> logMap = new TreeMap<>();
         try {
             HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.getRequestAttributes()).getRequest();
             Object[] args = joinPoint.getArgs();
