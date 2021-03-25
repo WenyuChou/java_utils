@@ -1,5 +1,6 @@
 package com.zhou.utils.utils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import javax.mail.BodyPart;
@@ -20,7 +21,7 @@ import javax.mail.internet.MimeMultipart;
  */
 public class SendMailUtil {
     /**smtp服务器*/
-    private String host = "smtp.163.com";
+    private static String host = "smtp.163.com";
     /**发件人地址*/
     private static String FROM = "m13718591023@163.com";
     /**用户名*/
@@ -37,7 +38,7 @@ public class SendMailUtil {
     public static void sendMail(String context, String subject, List<String> tos) {
         Properties props = new Properties();
         //设置发送邮件的邮件服务器的属性（这里使用网易的smtp服务器）
-        props.put("mail.smtp.host", "smtp.163.com");
+        props.put("mail.smtp.host", host);
         //需要经过授权，也就是有户名和密码的校验，这样才能通过验证（一定要有这一条）
         props.put("mail.smtp.auth", "true");
         //用props对象构建一个session
@@ -71,7 +72,7 @@ public class SendMailUtil {
             //发送邮件
             Transport transport = session.getTransport("smtp");
             //连接服务器的邮箱
-            transport.connect("smtp.163.com", USER, PWD);
+            transport.connect(host, USER, PWD);
             //把邮件发送出去
             transport.sendMessage(message, message.getAllRecipients());
             //关闭连接
@@ -81,10 +82,10 @@ public class SendMailUtil {
         }
     }
 
-/*    public static void main(String[] args) {
+    public static void main(String[] args) {
         List<String> tos = new ArrayList<>();
-        tos.add("zhouwenyu@polycis.com");
-        sendMail("邮件发送测试，这是正文","标题测试",tos);
-    }*/
+        tos.add("wenyu.chou@outlook.com");
+        sendMail("邮件发送测试，这是正文\uD83D\uDCC8\uD83D\uDCC8\uD83D\uDCC8","\uD83D\uDCC8标题测试",tos);
+    }
 
 }
