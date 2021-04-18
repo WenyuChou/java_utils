@@ -114,14 +114,14 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.0</version>
+                <version>3.8.1</version>
                 <configuration>
                     <verbose>true</verbose>
                     <source>${java.version}</source>
                     <target>${java.version}</target>
                     <showWarnings>true</showWarnings>
                     <compilerArguments>
-                        <bootclasspath>C:\jdk1.8.181/jre/lib/rt.jar</bootclasspath>
+                        <bootclasspath>/Library/Java/JavaVirtualMachines/jdk1.8.0_281.jdk/Contents/Home/jre/lib/rt.jar</bootclasspath>
                     </compilerArguments>
                 </configuration>
             </plugin>
