@@ -84,7 +84,7 @@ public class SendMailUtil {
 
     public static void main(String[] args) {
         List<String> tos = new ArrayList<>();
-        tos.add("zhouwenyu@88.com");
+        tos.add("zhouwenyu@tom.com");
         sendMail("邮件发送测试，这是正文\uD83D\uDCC8\uD83D\uDCC8\uD83D\uDCC8","\uD83D\uDCC8标题测试",tos);
     }
 
